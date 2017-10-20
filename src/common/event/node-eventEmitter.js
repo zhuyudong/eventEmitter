@@ -1,10 +1,42 @@
 'use strict';
 
 var domain;
-
+// 原文地址 https://juejin.im/post/58d3979a128fe1006cb1a832
 // This constructor is used to store event handlers. Instantiating this is
 // faster than explicitly calling `Object.create(null)` to get a "clean" empty
 // object (tested with v8 v4.9).
+/* Object.getOwnPropertyNames(EventEmmiter.prototype) 
+     [ 'constructor', 
+       'domain',
+       _events, 内部哈希map，保存事件及其监听函数（单函数或函数数组）
+       _maxListeners, 内部保存单事件最多全局监听函数数量，默认10个
+       setMaxListeners(n), 设置最大监听器数量
+       getMaxListeners(),
+       emit(event, [arg1],[arg2],...[]）, 按顺序执行监听器，有则返回true，无返回false
+       addListener(event, listener),
+       on(event, listener),  是addListener的别名
+       prependListener,
+       once(event, listener), 只执行一次，执行完立马移除
+       prependOnceListener,
+       removeListener(event, listener), 移除指定监听器
+       removeAllListeners([event]), 移除所有监听器
+       listeners(event),  返回指定事件的监听数组
+       listenerCount, 已废弃
+       'eventNames' 
+     ] 
+*/
+/*
+  Object.getOwnPropertyNames(require('events').EventEmitter)
+    [ 'length',
+      'name',
+      'prototype',
+      'EventEmitter',
+      'usingDomains',
+      'defaultMaxListeners',
+      'init',
+      'listenerCount' 
+    ]
+*/
 function EventHandlers() {}
 EventHandlers.prototype = Object.create(null);
 
@@ -66,7 +98,7 @@ EventEmitter.prototype.setMaxListeners = function setMaxListeners(n) {
     this._maxListeners = n;
     return this;
 };
-
+// 函数名前可以有$
 function $getMaxListeners(that) {
     if (that._maxListeners === undefined) {
         return EventEmitter.defaultMaxListeners;
@@ -83,6 +115,7 @@ EventEmitter.prototype.getMaxListeners = function getMaxListeners() {
 // arguments and can be deoptimized because of that. These functions always have
 // the same number of arguments and thus do not get deoptimized, so the code
 // inside them can execute faster.
+// 函数可以重名但是参数数量不能一样
 function emitNone(handler, isFn, self) {
     if (isFn) {
         handler.call(self);
